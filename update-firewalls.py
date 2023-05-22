@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env .venv/bin/python3
 # coding=utf-8
 
 """
@@ -20,7 +20,7 @@ import digitalocean
 from app.frontend import CloudFlare
 from app.backend.digitalocean import DigitalOceanManager
 
-from app.env import DIGITALOCEAN_BASE_URL, DIGITALOCEAN_ACCESS_TOKEN
+from app.env import DIGITALOCEAN_BASE_URL, DIGITALOCEAN_ACCESS_TOKEN, FIREWALL_NAME
 
 
 HTTP_PORTS = ['80', '443']
@@ -49,6 +49,9 @@ def main():
     if DIGITALOCEAN_ACCESS_TOKEN is None:
         raise ValueError('DIGITALOCEAN_ACCESS_TOKEN environment cannot be None!')
 
+    if FIREWALL_NAME is None:
+        raise ValueError('FIREWALL_NAME cannot be None!')
+
     manager = DigitalOceanManager(
         token=DIGITALOCEAN_ACCESS_TOKEN,
         end_point=DIGITALOCEAN_BASE_URL
@@ -58,9 +61,14 @@ def main():
     firewall_http_inbound_rules = new_firewall_http_inbound_rules()
 
     for firewall in firewalls:
+
+        if firewall.name != FIREWALL_NAME:
+            print('Skip update of firewall: ' + firewall.name)
+            continue
+
         firewall_inbound_rules = []
         update = False
-        print '\nChecking Firewall "' + firewall.name + '"...'
+        print('\nChecking Firewall "' + firewall.name + '"...')
         for inbound_rule in firewall.inbound_rules:
             if inbound_rule.ports in HTTP_PORTS:
                 # The firewall contain an HTTP/S inbound rule, so it will be updated with CloudFlare IPs
@@ -70,16 +78,16 @@ def main():
                 firewall_inbound_rules.append(inbound_rule)
 
         if not update:
-            print 'Firewall "' + firewall.name + '" checked (no update required)!'
+            print('Firewall "' + firewall.name + '" checked (no update required)!')
             continue
 
         # Extend firewall_inbound_rules list with right HTTP/S inbound rules
         firewall_inbound_rules.extend(firewall_http_inbound_rules)
         firewall.inbound_rules = firewall_inbound_rules
         firewall.update()
-        print 'Firewall "' + firewall.name + '" updated!'
+        print('Firewall "' + firewall.name + '" updated!')
 
-    print '\nDone!\n'
+    print('\nDone!\n')
 
 
 if __name__ == '__main__':
