@@ -1,1 +1,1 @@
-from cloudflare import CloudFlare
+from .cloudflareapi import CloudFlare
