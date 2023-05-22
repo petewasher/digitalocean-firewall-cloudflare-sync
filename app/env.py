@@ -18,10 +18,12 @@ CLOUDFLARE_IPS_V6_URL = "https://www.cloudflare.com/ips-v6"
 # ----- Editable environments ----- #
 DIGITALOCEAN_ACCESS_TOKEN = None
 DIGITALOCEAN_BASE_URL = 'https://api.digitalocean.com/v2/'
+FIREWALL_NAME = None
 
 EDITABLE_ENV = (
     'DIGITALOCEAN_ACCESS_TOKEN',
     'DIGITALOCEAN_BASE_URL',
+    'FIREWALL_NAME',
 )
 
 # ----------- Read .env ----------- #
